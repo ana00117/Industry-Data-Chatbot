@@ -1,6 +1,6 @@
 # Industry Data Chatbot
 
-A domain-specific Retrieval-Augmented Generation (RAG) chatbot that answers questions from user-uploaded PDF documents — course notes, company policies, manuals, legal documents, or training material. Answers are generated strictly from the retrieved document content, with source document and page references shown alongside every response.
+A domain-specific Retrieval-Augmented Generation (RAG) chatbot that answers questions from user-uploaded PDF documents: course notes, company policies, manuals, legal documents, or training material. Answers are generated strictly from the retrieved document content, with source document and page references shown alongside every response.
 
 ## Overview
 
@@ -17,29 +17,8 @@ Large documents are difficult to search manually. This application lets users up
 - Automatic refusal when an answer is not present in the uploaded documents
 - Source document and page number shown for every answer
 - Persistent chat history within a session, with a one-click reset
-- Clean, native Streamlit interface — no custom CSS
+- Clean, native Streamlit interface, no custom CSS
 
-## Architecture
-
-```
-Upload PDF files
-        |
-Extract text from each page
-        |
-Split text into overlapping chunks
-        |
-Convert chunks into embeddings
-        |
-Store embeddings in a FAISS vector index
-        |
-User asks a question
-        |
-Retrieve the most relevant chunks
-        |
-Send context and question to the LLM
-        |
-Display answer with source document and page
-```
 
 ## Tech Stack
 
