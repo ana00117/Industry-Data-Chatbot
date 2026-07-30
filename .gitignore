@@ -1,0 +1,8 @@
+.env
+__pycache__/
+*.pyc
+vector_store/saved_index/
+.venv/
+venv/
+.streamlit/secrets.toml
+.DS_Store
