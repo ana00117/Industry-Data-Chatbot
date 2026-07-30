@@ -25,7 +25,7 @@ if "doc_count" not in st.session_state:
     st.session_state.doc_count = 0
 
 with st.sidebar:
-    st.markdown("### INDUSTRAIL DATA CHATBOT")
+    st.markdown("### INDUSTRIAL DATA CHATBOT")
     st.caption("Grounded answers from your own documents.")
     st.divider()
 
@@ -44,11 +44,8 @@ with st.sidebar:
         st.session_state.messages = []
         st.rerun()
 
-    st.divider()
-    st.info("Verify high-stakes information independently. Generated answers may be incomplete or incorrect.")
-
 st.markdown("## Industry Data Chatbot")
-st.caption("Ask questions about your uploaded PDF documents. Answers are grounded strictly in the uploaded content.")
+st.caption("Ask questions about your uploaded PDF documents")
 st.divider()
 
 upload_container = st.container(border=True)
