@@ -9,7 +9,7 @@ load_dotenv()
 MAX_FILE_SIZE_MB = 20
 ALLOWED_FILE_TYPES = ["pdf"]
 
-st.set_page_config(page_title="Industry Data Chatbot", page_icon="📄", layout="wide")
+st.set_page_config(page_title="INDUSTRIAL DATA CHATBOT", page_icon="📄", layout="wide")
 
 if "pipeline" not in st.session_state:
     st.session_state.pipeline = None
@@ -17,9 +17,11 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
 if "documents_ready" not in st.session_state:
     st.session_state.documents_ready = False
+if "processed_signature" not in st.session_state:
+    st.session_state.processed_signature = None
 
-st.title("Industry Data Chatbot")
-st.caption("Ask questions about your uploaded PDF documents. Answers are grounded strictly in the uploaded content.")
+st.title("INDUSTRIAL DATA CHATBOT")
+st.caption("Ask questions about your uploaded PDF documents")
 
 with st.sidebar:
     st.header("Upload Documents")
@@ -38,7 +40,6 @@ with st.sidebar:
             else:
                 st.write(f"- {uploaded_file.name} ({size_mb:.2f} MB)")
 
-    process_clicked = st.button("Process Documents", use_container_width=True)
     clear_clicked = st.button("Clear Chat", use_container_width=True)
 
     if clear_clicked:
@@ -51,23 +52,29 @@ with st.sidebar:
 groq_api_key = os.environ.get("GROQ_API_KEY")
 groq_model = os.environ.get("GROQ_MODEL", "llama-3.1-8b-instant")
 
-if process_clicked:
-    if not uploaded_files:
-        st.sidebar.error("Please upload at least one PDF file.")
-    elif not groq_api_key:
-        st.sidebar.error("GROQ_API_KEY is not set. Add it to your environment variables.")
-    else:
-        valid_files = [f for f in uploaded_files if f.size / (1024 * 1024) <= MAX_FILE_SIZE_MB]
-        with st.spinner("Extracting and indexing documents..."):
-            pages = extract_pages_from_uploaded_files(valid_files)
-            if not pages:
-                st.sidebar.error("No readable text found in the uploaded documents.")
-            else:
-                pipeline = RAGPipeline(groq_api_key=groq_api_key, groq_model=groq_model)
-                pipeline.index_documents(pages)
-                st.session_state.pipeline = pipeline
-                st.session_state.documents_ready = True
-        st.sidebar.success("Documents processed successfully.")
+if uploaded_files:
+    valid_files = [f for f in uploaded_files if f.size / (1024 * 1024) <= MAX_FILE_SIZE_MB]
+    signature = tuple(sorted((f.name, f.size) for f in valid_files))
+
+    if valid_files and signature != st.session_state.processed_signature:
+        if not groq_api_key:
+            st.sidebar.error("GROQ_API_KEY is not set. Add it to your environment variables.")
+        else:
+            with st.spinner("Extracting information..."):
+                pages = extract_pages_from_uploaded_files(valid_files)
+                if not pages:
+                    st.sidebar.error("No readable text found in the uploaded documents.")
+                else:
+                    pipeline = RAGPipeline(groq_api_key=groq_api_key, groq_model=groq_model)
+                    pipeline.index_documents(pages)
+                    st.session_state.pipeline = pipeline
+                    st.session_state.documents_ready = True
+                    st.session_state.processed_signature = signature
+            st.sidebar.success("Documents processed successfully.")
+elif st.session_state.processed_signature is not None:
+    st.session_state.pipeline = None
+    st.session_state.documents_ready = False
+    st.session_state.processed_signature = None
 
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
@@ -77,7 +84,7 @@ for message in st.session_state.messages:
                 for source in message["sources"]:
                     st.write(f"{source['source']} - Page {source['page']}")
 
-question = st.chat_input("Ask a question about your documents...")
+question = st.chat_input("Ask a question...")
 
 if question:
     if not st.session_state.documents_ready or st.session_state.pipeline is None:
